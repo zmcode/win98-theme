@@ -1,0 +1,78 @@
+/*.window-content {*/
+/*    background: #fff;*/
+/*}*/
+
+
+
+.loading-img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -16px;
+    margin-top: -16px;
+    width: 32px;
+    height: 32px;
+    animation: rotate-reverse 2s linear 0s infinite normal;
+}
+.desktop > .folder-view {
+    height: 100%;
+}
+
+@keyframes rotate-reverse {
+    0% {
+        transform: rotate(0deg)
+    }
+    100% {
+        transform: rotate(360deg)
+    }
+}
+
+.document-wrap, .article-content-wrap {
+    height:100%;
+    position: relative;
+}
+.document-wrap-left, .article-headline-wrap {
+    width: 30%;
+    height: 100%;
+    box-sizing: border-box;
+    float: left;
+    overflow: auto;
+    position: relative;
+}
+.document-wrap-right, .article-content {
+    float: left;
+    width: calc(100% - 30%);
+    height: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    outline: none;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+.article-headline-wrap {
+    width: 15%;
+}
+
+
+.document-wrap-right .folder-view {
+    height: 100%;
+}
+
+.article-window {
+    user-select: auto;
+}
+.article-content {
+    width: calc(100% - 15%);
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
+    font-family: "LXGW WenKai Lite", sans-serif !important;
+}
+
+
+.document-wrap-right .title {
+    background: transparent;
+    color: black;
+}

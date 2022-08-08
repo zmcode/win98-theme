@@ -1,0 +1,295 @@
+<!-- 注册layout 模板 -->
+#define layout()
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="#(SEO_KEYWORD ?? WEB_META_KEYWORD)">
+  <meta name="description" content="#(SEO_DESC ?? WEB_META_DESC)">
+  <meta NAME="robots" CONTENT="all">
+  <meta NAME="title" CONTENT="#(WEB_TITLE ?? '未设置')#(isBlank(SEO_TITLE) ? '': '-' + SEO_TITLE)">
+  <link rel="stylesheet" href="/static/themes/win98/static/css/load.css">
+  <link rel="Shortcut Icon" href="#option('WEB_LOGO','/static/themes/win98/static/img/computer.png')" type="image/png">
+  <link rel="stylesheet" href="/static/themes/win98/static/css/zTreeStyle.css">
+  <link rel="stylesheet" href="/static/themes/win98/static/css/clippy.css">
+  <link rel="stylesheet" href="/static/themes/win98/static/css/default.min.css">
+  <link rel="stylesheet" href="/static/themes/win98/static/css/main.css">
+  <link rel="stylesheet" href="/static/themes/win98/static/css/layout.css">
+  <link rel="stylesheet" href="/static/themes/win98/static/css/windows-98.css">
+  <link rel="stylesheet" href="/static/themes/win98/static/css/windows-default.css">
+  <link rel="stylesheet" href="/static/themes/win98/static/css/classic.css">
+
+  <link rel="stylesheet" href="/static/themes/win98/static/css/lxgwwenkailite-regular.css">
+  <!--  <link rel="stylesheet" href="/static/themes/win98/static/css/xgwwenkailite-bold.css">-->
+  <link rel="stylesheet" href="/static/themes/win98/static/css/index.css">
+  <title>#(WEB_TITLE ?? '未设置')#(isBlank(SEO_TITLE) ? '': '-' + SEO_TITLE)</title>
+  #@css?()
+</head>
+<body>
+<div class="load-wrap" style="display: none">
+  <div class="load-bg-wrap">
+    <div class="load-bg">
+      <div class="load-loading-program"></div>
+    </div>
+  </div>
+</div>
+<div class="desktop" style="display: none"></div>
+<div class="taskbar" style="z-index: 5000; opacity:  0">
+  <button class="start-button toggle" title="Click here to begin.">
+    <img src="/static/themes/win98/static/img/start.png"/><b>开始</b>
+  </button>
+  <div class="taskbar-divider"></div>
+  <!-- TODO: pinned apps and resizing handles -->
+  <div class="tasks"></div>
+  <div class="taskbar-divider"></div>
+  <div class="tray inset-shallow">
+
+    <div class="taskbar-time" ondblclick="showMessageBox({iconID: 'info', message: '时间不够了, 别摸鱼了!'})"></div>
+  </div>
+</div>
+<div class="start-menu outset-deep" hidden style="display: none; z-index: 5001;">
+  <div class="start-menu-titlebar"></div>
+  <div class="start-menu-content">
+    <a href="/admin" target="_blank">设置</a>
+  </div>
+</div>
+<script src="/static/public/libs/jquery/jquery-3.5.1.min.js"></script>
+<script>
+  const timeoutPromise = ms =>
+    new Promise((_, reject) => setTimeout(() => reject(Symbol.for('timeout')), ms));
+
+  const loadPromise = new Promise((resolve, reject) => {
+    $(window).on('load', () => resolve('success'))
+  })
+
+  const delayPromise = ms => new Promise((resolve, _) => setTimeout(resolve, ms));
+
+  Promise.race([loadPromise, timeoutPromise(500)]).then(res => {
+    crateDeskTop()
+  }).catch(err => {
+    $('.load-wrap')[0].style = 'display: block'
+    $('.desktop')[0].style = 'display: none'
+    $('.taskbar')[0].style = 'opacity: 0'
+    Promise.all([loadPromise, delayPromise(800)])
+      .finally(() => {
+        crateDeskTop();
+      });
+
+  })
+</script>
+<script src="/static/themes/win98/static/js/highlight.min.js"></script>
+<script src="/static/themes/win98/static/js/request.js"></script>
+<script src="/static/themes/win98/static/js/marked.min.js"></script>
+<script src="/static/themes/win98/static/js/clippy.min.js"></script>
+<script src="/static/themes/win98/static/Clippy/agent.js"></script>
+<script src="/static/themes/win98/static/Clippy/sounds-mp3.js"></script>
+<script src="/static/themes/win98/static/js/clippy.min.js"></script>
+<script src="/static/themes/win98/static/js/jquery.ztree.core.min.js"></script>
+
+<script src="/static/themes/win98/static/js/konami.js"></script>
+<script src="/static/themes/win98/static/js/MenuBar.js"></script>
+<script src="/static/themes/win98/static/js/$Window.js"></script>
+<script src="/static/themes/win98/static/js/msgbox.js"></script>
+<script src="/static/themes/win98/static/js/helpers.js"></script>
+<script src="/static/themes/win98/static/js/filesystem-setup.js"></script>
+
+<script src="/static/themes/win98/static/js/Task.js"></script>
+<script src="/static/themes/win98/static/js/$taskbar-time.js"></script>
+<script src="/static/themes/win98/static/js/$start-menu.js"></script>
+<script src="/static/themes/win98/static/js/FolderView.js"></script>
+<script src="/static/themes/win98/static/js/FolderViewItem.js"></script>
+<script src="/static/themes/win98/static/js/$desktop.js"></script>
+<script src="/static/themes/win98/static/js/window-switcher.js"></script>
+<script src="/static/themes/win98/static/js/visualizer-overlay.js"></script>
+<script src="/static/themes/win98/static/js/my.js"></script>
+<script src="/static/themes/win98/static/js/programs.js"></script>
+
+<script>
+  let init = true
+  let closeWin = null
+  function addIconFileSystem() {
+
+    $('.desktop')[0].style = 'display: block'
+    $('.taskbar')[0].style = 'opacity: 1'
+    init = false
+    add_icon_not_via_filesystem({
+      title: "我的电脑",
+      iconID: "my-computer",
+      open: function () {
+        const $win = new $Window({
+          title: '我的电脑',
+          outerWidth: '50%',
+          outerHeight: '50%',
+          resizable: true,
+          icons: iconsAtTwoSizes("my-computer"),
+        });
+        $win.$content.append(`<div style="padding: 20px">
+        欢迎访问我的电脑
+</div>`)
+        new Task($win);
+      },
+    });
+
+    add_icon_not_via_filesystem({
+      title: "我的文档",
+      iconID: "my-documents-folder",
+      open: function () {
+        const $win = new $Window({
+          title: '我的文档',
+          outerWidth: '60%',
+          outerHeight: '60%',
+          resizable: true,
+          icons: iconsAtTwoSizes("my-documents-folder"),
+        });
+        const id = new Date().getTime()
+
+        new Task($win);
+        const content = createDocumentContent(id)
+        $win.$content.append(content)
+        reqAllCateGory(id)
+      },
+    });
+
+    add_icon_not_via_filesystem({
+      title: "全局搜索",
+      iconID: "find-file",
+      open: function () {
+        const $win = new $Window({
+          title: '全局搜索',
+          outerWidth: '50%',
+          outerHeight: '50%',
+          resizable: true,
+          icons: iconsAtTwoSizes("find-file"),
+        });
+        const id = new Date().getTime()
+        new Task($win);
+
+
+
+        $win.$content.append(`<div >
+      <div style="margin: 10px">
+      <label>文章名称: </label>
+        <input />
+</div>
+<div class="search-content" id="$()">
+
+</div>
+</div>`)
+
+      },
+    });
+
+    $('.load-wrap')[0].style = 'display: none'
+  }
+
+
+  function handleLogin() {
+
+    const account = $('#accountInput').val()
+    const password = $('#passwordInput').val()
+    $.ajax({
+      url: '/api/doLogin',
+      type: 'post',
+      data: {
+        account,
+        password
+      },
+      success:function (res) {
+        if (res.code === 200) {
+          closeWin.close()
+          if (init) {
+            addIconFileSystem()
+          } else {
+            $('.desktop')[0].style = 'display: block'
+            $('.taskbar')[0].style = 'opacity: 1'
+            $('.os-window').each((i, e) => {
+              $(e).show()
+            })
+          }
+          localStorage.setItem('key', res.data.key)
+        } else {
+          showMessageBox({
+            title: "登录失败",
+            message: res.msg,
+            iconID: "error",
+          })
+        }
+      }
+    })
+  }
+
+
+  function createLockWin() {
+    closeWin = new $Window({
+      title: '身份验证',
+      resizable: false,
+      innerWidth: 500,
+      outerHeight: 170,
+      maximizeButton: false,
+      minimizeButton: false,
+      closeButton: false
+    });
+    const html = `<div class="key-wrap">
+    <img src="/static/themes/win98/static/img/keys.png" alt="">
+    <p>访问电脑需要验证身份, 请输入你的账号以及密码获取权限</p>
+    <div class="input-wrap">
+    <label>用户名: </label> <input id="accountInput" type="text">
+</div>
+    <div class="input-wrap">
+    <label>密码: </label> <input id="passwordInput" type="password">
+</div>
+  <div class="button-wrap">
+    <button onclick="handleLogin()">提交</button>
+    <button style="margin-top: 5px">取消</button>
+</div>
+</div>`
+    closeWin.$content.append(html)
+  }
+
+  function crateDeskTop() {
+    const hasKey = localStorage.getItem('key')
+    if (hasKey) {
+      addIconFileSystem()
+      return
+    }
+    $.ajax({
+      url: '/api/isLock',
+      type: 'post',
+      success: function (res) {
+        const { data } = res
+        // $('.desktop')[0].style = 'display: block'
+        // $('.taskbar')[0].style = 'display: block'
+        if (data.lock) {
+
+          createLockWin()
+
+          $('.load-wrap')[0].style = 'display: none'
+        } else  {
+          addIconFileSystem()
+        }
+      },
+        // 如果没有这个接口, 直接返回成功吧
+        error: function () {
+            if (init) {
+                addIconFileSystem()
+            } else {
+                $('.desktop')[0].style = 'display: block'
+                $('.taskbar')[0].style = 'opacity: 1'
+                $('.os-window').each((i, e) => {
+                    $(e).show()
+                })
+            }
+            localStorage.setItem('key', res.data.key)
+        }
+    })
+
+  }
+  console.log('%c报错了? %c试试用chrome吧', 'color: red', 'color: black')
+  console.groupCollapsed('Hello, World'),console.log(` 2018-${new Date().getFullYear()}`),console.groupEnd()
+</script>
+#@script?()
+</body>
+</html>
+#end
