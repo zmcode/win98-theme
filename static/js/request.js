@@ -41,7 +41,7 @@ const request = ({ config, target, timeoutTime = 100, delayTime = 300 }) => {
         if (!target) {
             return;
         } else {
-            const loadingHtml = '<img class="loading-img" src="/static/themes/win98/static/img/loading.png">'
+            const loadingHtml = '<img class="loading-img" src="/static/themes/win98/static/img/loadingGif.gif">'
             $(target).append(loadingHtml)
         }
     };

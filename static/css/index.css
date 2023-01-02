@@ -12,7 +12,7 @@
     margin-top: -16px;
     width: 32px;
     height: 32px;
-    animation: rotate-reverse 2s linear 0s infinite normal;
+    /*animation: rotate-reverse 2s linear 0s infinite normal;*/
 }
 .desktop > .folder-view {
     height: 100%;
@@ -31,17 +31,67 @@
     height:100%;
     position: relative;
 }
+
+.document-wrap-right .document-wrap-right-content-wrap {
+    height: calc(100% - 6%);
+}
+
+.document-wrap-right .right-wrap-control {
+    margin-top: 1%;
+    height: 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.right-wrap-pagination {
+    display: flex;
+    align-items: center;
+}
+
+.right-wrap-pagination  .prevButton {
+    width: 24px;
+    height: 24px;
+    background: no-repeat center url("/static/themes/win98/static/img/shangyiye.png");
+    background-size: 60% 60%;
+    cursor: pointer;
+
+}
+
+.right-wrap-pagination  .nextButton {
+    width: 24px;
+    height: 24px;
+    background: no-repeat center url("/static/themes/win98/static/img/xiayiye.png");
+    background-size: 60% 60%;
+    cursor: pointer;
+}
+
+.right-wrap-control  .right-content-input {
+    border: 0;
+    outline: 0;
+    background: transparent;
+    box-shadow: none;
+    border-bottom: 1px solid #999;
+    margin: 0 10px;
+    text-align: center;
+    width: 50px;
+}
+
+
+
 .document-wrap-left, .article-headline-wrap {
-    width: 30%;
+    width: 20%;
     height: 100%;
     box-sizing: border-box;
     float: left;
     overflow: auto;
     position: relative;
+    border-right: 1px solid #999;
+    margin: 5px 0;
 }
 .document-wrap-right, .article-content {
     float: left;
-    width: calc(100% - 30%);
+    width: calc(100% - 20%);
     height: 100%;
     padding: 10px;
     box-sizing: border-box;
@@ -49,7 +99,11 @@
     display: flex;
     flex-direction: column;
     overflow: auto;
+    position: relative;
 }
+
+
+
 .article-headline-wrap {
     width: 15%;
 }
@@ -75,4 +129,6 @@
 .document-wrap-right .title {
     background: transparent;
     color: black;
+    width: 90%;
+    margin: 5px auto;
 }

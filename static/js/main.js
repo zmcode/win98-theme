@@ -1,33 +1,3 @@
-$(document).ready(function (){
-  $('.icon-wrap').dblclick(function() {
-    const type = $(this).data().type || 'computer'
-
-    const modalId = `${type}-` + S4()
-    let content = ''
-    if (type === 'computer') {
-      content = '2018-10-18'
-      // createModal(modalId, content)
-    } else  {
-      $.ajax({
-        url: '/api/category/getAllList',
-        success: (res) => {
-          const cateGoryWindow = new $Window({
-            title: '测试',
-            resizable: true,
-            outerWidth: 500,
-            outerHeight: 500
-          })
-          content = createCateGoryList(res.data, modalId)
-          cateGoryWindow.$content.append(content)
-          // content = createCateGoryList(res.data, modalId)
-          // createModal(modalId, content)
-        }
-      })
-    }
-
-
-  })
-})
 
 function createCateGoryList(arr, modalId) {
   return arr.reduce((prev, next) => {
