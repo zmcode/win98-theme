@@ -381,7 +381,7 @@ function Explorer(address) {
     var win_title = document_title;
     // TODO: focus existing window if folder is currently open
     var $win = make_iframe_window({
-        src: "programs/explorer/index.html" + (address ? ("?address=" + encodeURIComponent(address)) : ""),
+        src: address,
         icons: iconsAtTwoSizes("folder-open"),
         title: win_title,
         // this is based on one measurement, but it uses different sizes depending on the screen resolution,
@@ -780,7 +780,6 @@ openThemeFile.acceptsFilePaths = true;
 function systemExecuteFile(file_path) {
     // execute file with default handler
     // like the START command in CMD.EXE
-    console.log(file_path, 'file_path')
     // withFilesystem(function () {
     //     var fs = BrowserFS.BFSRequire("fs");
     //     fs.stat(file_path, function (err, stats) {

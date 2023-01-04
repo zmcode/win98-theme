@@ -87,7 +87,6 @@
     overflow: auto;
     position: relative;
     border-right: 1px solid #999;
-    margin: 5px 0;
 }
 .document-wrap-right, .article-content {
     float: left;
@@ -126,7 +125,25 @@
 }
 
 
-.document-wrap-right .title {
+.document-wrap-right .title, .window-content .title {
+    background: transparent;
+    color: black;
+    width: 90%;
+    margin: 5px auto;
+}
+
+.web-content-wrap .folder-view {
+    height: 100%;
+}
+
+.aItem {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 75px;
+}
+
+.aItem .name {
     background: transparent;
     color: black;
     width: 90%;

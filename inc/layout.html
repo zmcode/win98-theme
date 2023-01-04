@@ -157,53 +157,71 @@
 
 
     add_icon_not_via_filesystem({
-      title: "代码片段",
-      iconID: "notepad-file",
+      title: "我的项目",
+      iconID: "web",
       open: function () {
         const $win = new $Window({
-          title: '代码片段',
+          title: '我的项目',
           outerWidth: '60%',
           outerHeight: '70%',
           resizable: true,
-          icons: iconsAtTwoSizes("notepad-file"),
+          icons: iconsAtTwoSizes("web"),
         });
-        const content = `<iframe src="http://code.diaryhub.cn" style="width: 100%;height: 100%;border: 0;outline:0"></iframe>`
-        $win.$content.append(content)
+        new Task($win);
+
+
+        let arr = [
+          {
+            "name": "代码片段",
+            "site": "http://code.diaryhub.cn",
+            href: ''
+          }
+        ]
+        $.ajax({
+          url: '/admin/theme/themeList',
+          success: function (res) {
+            if (res.code == 200) {
+              arr = arr.concat(res.data)
+            }
+
+            const dom = addWebItem(arr)
+            $win.$content.append(dom)
+          },
+          error: function () {
+            const dom = addWebItem(arr)
+            $win.$content.append(dom)
+          }
+        })
+
       },
     });
 
-//     add_icon_not_via_filesystem({
-//       title: "全局搜索",
-//       iconID: "find-file",
-//       open: function () {
-//         const $win = new $Window({
-//           title: '全局搜索',
-//           outerWidth: '50%',
-//           outerHeight: '50%',
-//           resizable: true,
-//           icons: iconsAtTwoSizes("find-file"),
-//         });
-//         const id = new Date().getTime()
-//         new Task($win);
-//
-//
-//
-//         $win.$content.append(`<div >
-//       <div style="margin: 10px">
-//       <label>文章名称: </label>
-//         <input />
-// </div>
-// <div class="search-content" id="$()">
-//
-// </div>
-// </div>`)
-//
-//       },
-//     });
-
     $('.load-wrap')[0].style = 'display: none'
   }
+  function addWebItem(arr) {
+    const rightContent_view = new FolderView('', {
+      asDesktop: false,
+    });
+    arr.forEach(item => {
 
+      rightContent_view.add_item(new FolderViewItem({
+        icons: {
+          // @TODO: know what sizes are available
+          [DESKTOP_ICON_SIZE]: getIconPath("web-item", DESKTOP_ICON_SIZE),
+        },
+        title: item.name,
+        is_system_folder: true,
+        open: function () {
+          window.open(item.path ? window.location.href + `?previewTheme=${item.path}` : item.site)
+        },
+      }))
+    })
+    var div = document.createElement('div');
+    div.appendChild(rightContent_view.element)
+    div.style = 'padding: 15px;width: 100%;height: 100%;box-sizing: border-box'
+    div.classList = ['web-content-wrap']
+    return div
+  }
 
   function handleLogin() {
 

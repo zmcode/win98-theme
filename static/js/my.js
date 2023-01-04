@@ -175,7 +175,7 @@ function renderDocumentRight(uniqueId, cateGoryId, page = 1, content ='') {
             customClass: 'article-window',
             icons: iconsAtTwoSizes("notepad-file"),
           });
-          const articleContentId = item.uniqueId + new Date().getTime()
+          const articleContentId = new Date().getTime()
           headlineArr = []
           prevLevel = 0
           activePid = 0

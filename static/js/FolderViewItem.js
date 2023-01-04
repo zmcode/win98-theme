@@ -23,14 +23,14 @@ function FolderViewItem(options) {
     // TODO: or if set to "web" mode, single click
     // also Enter is currently implemented by triggering dblclick which is awkward
     let single_click_timeout;
-    // $container.on("dblclick", (event) => {
-    // 	if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
-    // 		return; // Not true to Windows 98. But in Windows 98 it doesn't do two things, it just does the double click action.
-    // 		// At any rate, it feels nice to make Ctrl+click do only one thing (toggling the selection state).
-    // 	}
-    // 	options.open();
-    // 	clearTimeout(single_click_timeout);
-    // });
+    $container.on("dblclick", (event) => {
+    	if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+    		return; // Not true to Windows 98. But in Windows 98 it doesn't do two things, it just does the double click action.
+    		// At any rate, it feels nice to make Ctrl+click do only one thing (toggling the selection state).
+    	}
+    	options.open();
+    	clearTimeout(single_click_timeout);
+    });
     // dblclick doesn't work on iPad at least, using pointerdown instead
     let last_pointerdown_time = -Infinity;
     const double_click_ms = 500;
@@ -62,7 +62,7 @@ function FolderViewItem(options) {
             return;
         }
         if ((event.timeStamp - last_pointerdown_time) < double_click_ms) {
-            options.open();
+            // options.open();
             clearTimeout(single_click_timeout);
             last_pointerdown_time = -Infinity; // don't open again on third click
             return;
