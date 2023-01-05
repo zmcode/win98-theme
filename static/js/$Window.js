@@ -95,6 +95,7 @@ function $Window(options) {
 	$w[0].$window = $w;
 	$w.element = $w[0];
 	$w[0].id = `os-window-${Math.random().toString(36).substr(2, 9)}`;
+
 	$w.$titlebar = $(E("div")).addClass("window-titlebar").appendTo($w);
 	$w.$title_area = $(E("div")).addClass("window-title-area").appendTo($w.$titlebar);
 	$w.$title = $(E("span")).addClass("window-title").appendTo($w.$title_area);
@@ -102,6 +103,7 @@ function $Window(options) {
 		options.minimizeButton = false;
 		options.maximizeButton = false;
 	}
+
 	if (options.minimizeButton !== false) {
 		$w.$minimize = $(E("button")).addClass("window-minimize-button window-action-minimize window-button").appendTo($w.$titlebar);
 		$w.$minimize.attr("aria-label", "Minimize window"); // @TODO: for taskbarless minimized windows, "restore"

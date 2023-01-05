@@ -55,6 +55,21 @@
     <a href="/admin" target="_blank">设置</a>
   </div>
 </div>
+<div id="articleMenu" class="menu">
+  <ul>
+    <li class="m_add_article">新建文章</li>
+    <li class="m_article_edit">编辑文章</li>
+<!--    <li class="m_article_detail">查看文章</li>-->
+<!--    <li class="m_article_config">属性</li>-->
+  </ul>
+</div>
+<div id="addMenu" class="menu">
+  <ul>
+    <li class="m_add_article">新建文章</li>
+<!--    <li class="m_article_edit">新建动态</li>-->
+<!--    <li class="m_article_edit">更换壁纸</li>-->
+  </ul>
+</div>
 <script src="/static/public/libs/jquery/jquery-3.5.1.min.js"></script>
 <script>
   const timeoutPromise = ms =>
@@ -79,6 +94,7 @@
 
   })
 </script>
+
 <script src="/static/themes/win98/static/js/highlight.min.js"></script>
 <script src="/static/themes/win98/static/js/request.js"></script>
 <script src="/static/themes/win98/static/js/marked.min.js"></script>
@@ -108,6 +124,7 @@
 <script>
   let init = true
   let closeWin = null
+  var win98Theme = true
   function addIconFileSystem() {
 
     $('.desktop')[0].style = 'display: block'
@@ -326,6 +343,8 @@
 
   console.log('%c报错了? %c试试用chrome吧', 'color: red', 'color: black')
   console.groupCollapsed('Hello, World'),console.log(` 2018-${new Date().getFullYear()}`),console.groupEnd()
+
+
 </script>
 #@script?()
 </body>

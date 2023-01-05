@@ -41,6 +41,57 @@ function createArticleItem() {
 
 let activeCateGoryId = 0
 
+$('body').on('click', function () {
+  hideAllMenu()
+})
+
+
+$('body').on('contextmenu', function (event) {
+  event.preventDefault()
+  if (!Array.from(event.target.classList).includes('folder-view')) return
+  hideAllMenu()
+  let x = event.clientX
+  let y = event.clientY
+  $('#addMenu').show()
+  $('#addMenu').css({"top":y+"px", "left":x+"px", "visibility":"visible"});
+})
+var needCloseWin = null
+var controlArticleId = 0
+
+$('.m_add_article').on('click', function () {
+  const $win = new $Window({
+    title: '新建文章',
+    outerWidth: '80%',
+    outerHeight: '88%',
+    resizable: true,
+    icons: iconsAtTwoSizes("notepad-file"),
+  });
+  const content = `<iframe class="iframe-item" src="/admin/article/addPage"></iframe>`
+  $win.$content.append(content)
+  new Task($win);
+  needCloseWin = $win
+})
+
+
+$('.m_article_edit').on('click', function () {
+  const $win = new $Window({
+    title: '编辑文章',
+    outerWidth: '80%',
+    outerHeight: '88%',
+    resizable: true,
+    icons: iconsAtTwoSizes("notepad-file"),
+  });
+  const content = `<iframe class="iframe-item" src="/admin/article/updatePage/${controlArticleId}"></iframe>`
+  $win.$content.append(content)
+  new Task($win);
+  needCloseWin = $win
+})
+
+function  hideAllMenu() {
+  $('#articleMenu').hide()
+  $('#addMenu').hide()
+}
+
 
 function iconsAtTwoSizes(iconID) {
   return {
@@ -159,7 +210,7 @@ function renderDocumentRight(uniqueId, cateGoryId, page = 1, content ='') {
   }).then(data => {
 
     data.forEach(item => {
-      rightContent_view.add_item(new FolderViewItem({
+      const folderItem = new FolderViewItem({
         icons: {
           // @TODO: know what sizes are available
           [DESKTOP_ICON_SIZE]: getIconPath("notepad-file", DESKTOP_ICON_SIZE),
@@ -172,8 +223,9 @@ function renderDocumentRight(uniqueId, cateGoryId, page = 1, content ='') {
             outerWidth: '80%',
             outerHeight: '80%',
             resizable: true,
-            customClass: 'article-window',
+            customClass: 'article-window ',
             icons: iconsAtTwoSizes("notepad-file"),
+
           });
           const articleContentId = new Date().getTime()
           headlineArr = []
@@ -198,7 +250,37 @@ function renderDocumentRight(uniqueId, cateGoryId, page = 1, content ='') {
             $win.focus();
           })
         },
-      }));
+      })
+      folderItem.element.id = item.id + '/' + uniqueId
+      $(folderItem.element).on('contextmenu', function (event) {
+        controlArticleId = this.id.split('/')[0]
+        event.preventDefault()
+        hideAllMenu()
+          let x = event.clientX
+          let y = event.clientY
+        $('#articleMenu').show()
+        $('#articleMenu').css({"top":y+"px", "left":x+"px", "visibility":"visible"});
+      })
+      // console.log(folderItem.element.classList[0], 'folderItem.element.classList[0]')
+      // $.contextMenu({
+      //   selector: '.' + folderItem.element.classList[0],
+      //   callback: function(key, options) {
+      //     var m = "clicked: " + key;
+      //     window.console && console.log(m) || alert(m);
+      //   },
+      //   items: {
+      //     "edit": {name: "Edit", icon: "edit"},
+      //     "cut": {name: "Cut", icon: "cut"},
+      //     copy: {name: "Copy", icon: "copy"},
+      //     "paste": {name: "Paste", icon: "paste"},
+      //     "delete": {name: "Delete", icon: "delete"},
+      //     "sep1": "---------",
+      //     "quit": {name: "Quit", icon: function(){
+      //         return 'context-menu-icon context-menu-icon-quit';
+      //       }}
+      //   }
+      // });
+      rightContent_view.add_item(folderItem)
     })
     $(`#document-wrap-${uniqueId} .pagination-input`).val(page)
     $(rightContent).append(rightContent_view.element);
@@ -221,7 +303,7 @@ function createDocumentContent(uniqueId) {
       <div class="right-wrap-control">
         <div style="display: flex;align-items: center">
           <img src="/static/themes/win98/static/img/icons/find-file-16x16.png" alt="">
-          <input style="width:60%;text-align: left" onblur="searchArticle('${uniqueId}')" id="seachInput" placeholder="搜索文章" class="right-content-input" type="text"   value="">
+          <input style="width:60%;text-align: left"  onkeydown="searchArticle(event, '${uniqueId}')" id="searchInput" placeholder="搜索文章" class="right-content-input" type="text"   value="">
         </div>
         <div class="right-wrap-pagination">
           <button onclick="handlePage('${uniqueId}', 'prev')" class="prevButton"></button>
@@ -236,7 +318,7 @@ function createDocumentContent(uniqueId) {
 
 function handlePage(uniqueId, type) {
   let page = parseFloat($(`#document-wrap-${uniqueId} .pagination-input`).val())
-  const value = $(`#document-wrap-${uniqueId} #seachInput`).val()
+  const value = $(`#document-wrap-${uniqueId} #searchInput`).val()
   if (type === 'prev') {
     page -= 1
   }
@@ -249,10 +331,13 @@ function handlePage(uniqueId, type) {
   renderDocumentRight(uniqueId, cateGoryId[0].id, page, value)
 }
 
-function searchArticle(uniqueId) {
-  const value = $(`#document-wrap-${uniqueId} #seachInput`).val()
-  const cateGoryId = allZtreeInstanceObj[uniqueId].getSelectedNodes()
-  renderDocumentRight(uniqueId, cateGoryId[0].id, 1, value)
+function searchArticle(event, uniqueId) {
+  if(event.keyCode == 13){
+    const value = $(`#document-wrap-${uniqueId} #searchInput`).val()
+    const cateGoryId = allZtreeInstanceObj[uniqueId].getSelectedNodes()
+    renderDocumentRight(uniqueId, cateGoryId[0].id, 1, value)
+
+  }
 }
 
 
