@@ -98,5 +98,5 @@ window.showMessageBox = window.showMessageBox || (({
 });
 
 window.alert = (message) => {
-    showMessageBox({ message });
+    return showMessageBox({ message });
 };

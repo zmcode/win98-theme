@@ -2,7 +2,7 @@ const timeout = ms =>
     new Promise((_, reject) => setTimeout(() => reject(Symbol.for('timeout')), ms));
 
 const delay = ms => new Promise((resolve, _) => setTimeout(resolve, ms));
-
+let showBoxing = false
 const request = ({ config, target, timeoutTime = 100, delayTime = 300 }) => {
     // 返回promise的ajax请求
     const promise = new Promise((resolve, reject) => {
@@ -14,25 +14,34 @@ const request = ({ config, target, timeoutTime = 100, delayTime = 300 }) => {
                 AccessKey: key ? key : ''
             }
         })
-        ajax.done(res => {
+
+        ajax.done((res, res1, res2) => {
             resolve(res)
         })
         ajax.fail(error => {
-            const promise = showMessageBox({
-                title: "权限失效",
-                message: '你没有权限查看该内容, 请重新获取权限',
-                iconID: "error",
-            })
-            localStorage.removeItem('key')
+            if (error.status === 403) {
+                if (!showBoxing) {
+                    const promise = showMessageBox({
+                        title: "权限失效",
+                        message: '你没有权限查看该内容, 请重新获取权限',
+                        iconID: "error",
+                    })
+                    showBoxing = true
+                    localStorage.removeItem('key')
 
-            promise.then(res => {
-                $('.desktop')[0].style = 'display: none'
-                $('.taskbar')[0].style = 'opacity: 0'
-                $('.os-window').each((i, e) => {
-                    $(e).hide()
-                })
-                createLockWin()
-            })
+                    promise.then(res => {
+                        $('.desktop')[0].style = 'display: none'
+                        $('.taskbar')[0].style = 'opacity: 0'
+                        $('.os-window').each((i, e) => {
+                            $(e).hide()
+                        })
+                        showBoxing = false
+                        createLockWin()
+                    })
+                }
+            }
+
+
             reject(error)
         })
     });

@@ -33,11 +33,7 @@ function deepChangeArr(uniqueId, data) {
   })
 }
 
-function createArticleItem() {
-  return `<div>
 
-</div>`
-}
 
 let activeCateGoryId = 0
 
@@ -48,19 +44,28 @@ $('body').on('click', function () {
 
 $('body').on('contextmenu', function (event) {
   event.preventDefault()
-  if (!Array.from(event.target.classList).includes('folder-view')) return
-  hideAllMenu()
-  let x = event.clientX
-  let y = event.clientY
-  $('#addMenu').show()
-  $('#addMenu').css({"top":y+"px", "left":x+"px", "visibility":"visible"});
+  // const viewMode = $(event.target).data().viewMode
+  // if (!isLogin || viewMode !== 'LARGE_ICONS') return
+  // hideAllMenu()
+  // let x = event.clientX
+  // let y = event.clientY
+  // $('#addMenu').show()
+  // $('#addMenu').css({"top":y+"px", "left":x+"px", "visibility":"visible"});
 })
+
+
 var needCloseWin = null
 var controlArticleId = 0
 
 $('.m_add_article').on('click', function () {
+  if (!isLogin) {
+    alert('需要登录才可以操作').then(res => {
+      createLockWin()
+    })
+  return
+  }
   const $win = new $Window({
-    title: '新建文章',
+    title: '新建文档',
     outerWidth: '80%',
     outerHeight: '88%',
     resizable: true,
@@ -73,7 +78,35 @@ $('.m_add_article').on('click', function () {
 })
 
 
+
+$('.m_add_journal').on('click', function () {
+  if (!isLogin) {
+    alert('需要登录才可以操作').then(res => {
+      createLockWin()
+    })
+    return
+  }
+  const $win = new $Window({
+    title: '新建动态',
+    outerWidth: '80%',
+    outerHeight: '88%',
+    resizable: true,
+    icons: iconsAtTwoSizes("address_book"),
+  });
+  const content = `<iframe class="iframe-item" src="/admin/journal/addPage"></iframe>`
+  $win.$content.append(content)
+  new Task($win);
+  needCloseWin = $win
+})
+
+
 $('.m_article_edit').on('click', function () {
+  if (!isLogin) {
+    alert('需要登录才可以操作').then(res => {
+      createLockWin()
+    })
+    return
+  }
   const $win = new $Window({
     title: '编辑文章',
     outerWidth: '80%',
@@ -131,6 +164,13 @@ renderer.heading = (text, level) => {
   return `<h${level} id=${uniqueId}>${text}</h${level}>`;
 }
 
+renderer.image = (href, title, text) => {
+  return `<img class="bg-img"  src="${href}" alt="${text}" title="${
+    title ? title : ''
+  }">`
+}
+
+
 
 marked.setOptions({
   renderer,
@@ -174,7 +214,7 @@ function renderArticleContent(uniqueId, content) {
       </div>
   </div>`
 }
-
+var controlZtreeId = 0
 
 const headlineSetting = {
   view: {
@@ -237,7 +277,6 @@ function renderDocumentRight(uniqueId, cateGoryId, page = 1, content ='') {
           const markedHtml = betterMarked(item.content)
           const html = renderArticleContent(articleContentId, markedHtml)
 
-
           $win.$content.append(html)
           if (!headlineArr.length) {
             $(`#article-headline-wrap-${articleContentId}`).hide()
@@ -249,10 +288,17 @@ function renderDocumentRight(uniqueId, cateGoryId, page = 1, content ='') {
             $win.show();
             $win.focus();
           })
+          const element = document.getElementById('article-content-' + articleContentId )
+          new Viewer(element, {
+            transition: false
+          })
         },
       })
       folderItem.element.id = item.id + '/' + uniqueId
       $(folderItem.element).on('contextmenu', function (event) {
+        event.stopPropagation();
+        if (!isLogin) return
+        controlZtreeId = uniqueId
         controlArticleId = this.id.split('/')[0]
         event.preventDefault()
         hideAllMenu()
@@ -261,49 +307,92 @@ function renderDocumentRight(uniqueId, cateGoryId, page = 1, content ='') {
         $('#articleMenu').show()
         $('#articleMenu').css({"top":y+"px", "left":x+"px", "visibility":"visible"});
       })
-      // console.log(folderItem.element.classList[0], 'folderItem.element.classList[0]')
-      // $.contextMenu({
-      //   selector: '.' + folderItem.element.classList[0],
-      //   callback: function(key, options) {
-      //     var m = "clicked: " + key;
-      //     window.console && console.log(m) || alert(m);
-      //   },
-      //   items: {
-      //     "edit": {name: "Edit", icon: "edit"},
-      //     "cut": {name: "Cut", icon: "cut"},
-      //     copy: {name: "Copy", icon: "copy"},
-      //     "paste": {name: "Paste", icon: "paste"},
-      //     "delete": {name: "Delete", icon: "delete"},
-      //     "sep1": "---------",
-      //     "quit": {name: "Quit", icon: function(){
-      //         return 'context-menu-icon context-menu-icon-quit';
-      //       }}
-      //   }
-      // });
       rightContent_view.add_item(folderItem)
     })
     $(`#document-wrap-${uniqueId} .pagination-input`).val(page)
     $(rightContent).append(rightContent_view.element);
+
+  }, false)
+}
+
+var journalViewer = null
+function renderJournalRight(uniqueId, cateGoryId, page = 1, content ='') {
+  journalViewer && journalViewer.destroy()
+  const rightContent = $(`#document-wrap-right-content-${uniqueId}`)
+  $(rightContent).empty()
+  activeArticleId = uniqueId
+  request({
+    config: {
+      url: '/api/article/list',
+      data: {
+        pageSize: 10,
+        categoryId: cateGoryId,
+        pageIndex: page,
+        content,
+         type: 'journal'
+      },
+    },
+    target: `#document-wrap-right-content-${uniqueId}`
+  }).then(data => {
+    let content = ''
+    data.forEach(item => {
+      content += createJournalItem(item)
+    })
+    $(`#document-wrap-${uniqueId} .pagination-input`).val(page)
+    $(rightContent).append(content);
+    const element = document.getElementById('document-wrap-right-content-' + uniqueId )
+    journalViewer = new Viewer(element, {
+      transition: false
+    })
   })
 }
 
+function createJournalItem(item) {
+  const markedHtml =  betterMarked(item.content)
+  return `<div class="journal-item-wrap">
+  <div class="journal-item-title">
+  <span>${item.title}</span>
+  <span class="edit" style="display: ${isLogin ? 'inline-block' : 'none'}" onclick="editJournal('${item.id}')">编辑</span>
+</div>
+  <div class="journal-item-content">${markedHtml}</div>
+</div>`
+}
 
-
-
+function editJournal(id) {
+  if (!isLogin) {
+    alert('需要登录才可以操作').then(res => {
+      createLockWin()
+    })
+    return
+  }
+  const $win = new $Window({
+    title: '编辑动态',
+    outerWidth: '80%',
+    outerHeight: '88%',
+    resizable: true,
+    icons: iconsAtTwoSizes("address_book"),
+  });
+  $win.focus()
+  const content = `<iframe class="iframe-item" src="/admin/journal/updatePage/${id}"></iframe>`
+  $win.$content.append(content)
+  new Task($win);
+  needCloseWin = $win
+}
 // 创建document内容
 function createDocumentContent(uniqueId) {
+  listType = 'document'
   return `<div id="document-wrap-${uniqueId}" class="document-wrap">
   <div class="document-wrap-left">
     <ul id="cate-gory-tree-${uniqueId}" class="ztree"></ul>
   </div>
     <div class="document-wrap-right">
-      <div class="document-wrap-right-content-wrap" id="document-wrap-right-content-${uniqueId}">
+      <div class="document-wrap-right-content-wrap document" id="document-wrap-right-content-${uniqueId}">
       
       </div>
       <div class="right-wrap-control">
         <div style="display: flex;align-items: center">
           <img src="/static/themes/win98/static/img/icons/find-file-16x16.png" alt="">
-          <input style="width:60%;text-align: left"  onkeydown="searchArticle(event, '${uniqueId}')" id="searchInput" placeholder="搜索文章" class="right-content-input" type="text"   value="">
+          <input style="width:60%;text-align: left"  onkeydown="searchArticle(event, '${uniqueId}')" id="searchInput" placeholder="搜索文档" class="right-content-input right-content-input-search" type="text"   value="">
         </div>
         <div class="right-wrap-pagination">
           <button onclick="handlePage('${uniqueId}', 'prev')" class="prevButton"></button>
@@ -316,7 +405,36 @@ function createDocumentContent(uniqueId) {
   </div>`
 }
 
-function handlePage(uniqueId, type) {
+
+var listType = 'document'
+
+function createJournalContent(uniqueId) {
+  listType = 'journal'
+  return `<div id="document-wrap-${uniqueId}" class="document-wrap">
+  <div class="document-wrap-left">
+    <ul id="cate-gory-tree-${uniqueId}" class="ztree"></ul>
+  </div>
+    <div class="document-wrap-right document-wrap-right-journal">
+      <div class="document-wrap-right-content-wrap journal-wrap" id="document-wrap-right-content-${uniqueId}">
+      
+      </div>
+      <div class="right-wrap-control right-wrap-control-journal">
+        <div style="display: flex;align-items: center">
+          <img src="/static/themes/win98/static/img/icons/find-file-16x16.png" alt="">
+          <input style="width:60%;text-align: left"  onkeydown="searchArticle(event, '${uniqueId}',false)" id="searchInput" placeholder="搜索动态" class="right-content-input right-content-input-search" type="text"   value="">
+        </div>
+        <div class="right-wrap-pagination">
+          <button onclick="handlePage('${uniqueId}', 'prev', false)" class="prevButton"></button>
+           <input onblur="handlePage('${uniqueId}', 'input', false)" class="right-content-input pagination-input" type="text"   value="1">
+          <button onclick="handlePage('${uniqueId}', 'next', false)" class="nextButton"></button>
+        </div>
+        
+      </div>
+    </div>
+  </div>`
+}
+
+function handlePage(uniqueId, type, isDocument = true) {
   let page = parseFloat($(`#document-wrap-${uniqueId} .pagination-input`).val())
   const value = $(`#document-wrap-${uniqueId} #searchInput`).val()
   if (type === 'prev') {
@@ -326,19 +444,31 @@ function handlePage(uniqueId, type) {
   if (type === 'next') {
     page += 1
   }
+
   page = page ? page : 1
   const cateGoryId = allZtreeInstanceObj[uniqueId].getSelectedNodes()
-  renderDocumentRight(uniqueId, cateGoryId[0].id, page, value)
+  if (isDocument) {
+    renderDocumentRight(uniqueId, cateGoryId[0].id, page, value)
+  }
+  else {
+    renderJournalRight(uniqueId, cateGoryId[0].id, page, value)
+  }
 }
 
-function searchArticle(event, uniqueId) {
+function searchArticle(event, uniqueId, isDocument = true) {
   if(event.keyCode == 13){
     const value = $(`#document-wrap-${uniqueId} #searchInput`).val()
     const cateGoryId = allZtreeInstanceObj[uniqueId].getSelectedNodes()
-    renderDocumentRight(uniqueId, cateGoryId[0].id, 1, value)
-
+    if (isDocument) {
+      renderDocumentRight(uniqueId, cateGoryId[0].id, 1, value)
+    }
+    else {
+      renderJournalRight(uniqueId, cateGoryId[0].id, 1, value)
+    }
   }
 }
+
+
 
 
 
@@ -350,12 +480,17 @@ const CateGorySetting = {
     onClick: (e, cateGoryId, data) => {
       const lastIndex = cateGoryId.lastIndexOf('-')
       const id = cateGoryId.slice(lastIndex + 1)
-      renderDocumentRight(id, data.id)
+      if (listType === 'document') {
+        renderDocumentRight(id, data.id)
+      }
+       else {
+        renderJournalRight(id, data.id)
+      }
     },
   }
 }
 
-
+var articleTreeInstance = null
 
 function renderCateGoryTree(uniqueId, data) {
   data = data.filter(({ desc }) => !desc.includes('代码'))
@@ -364,8 +499,8 @@ function renderCateGoryTree(uniqueId, data) {
     name: '全部',
   })
   const result = deepChangeArr(uniqueId, data)
-  const treeInstance = $.fn.zTree.init($("#cate-gory-tree-" + uniqueId), CateGorySetting, result);
-  allZtreeInstanceObj[uniqueId] = treeInstance
-  var nodes = treeInstance.getNodes();
-  treeInstance.selectNode(nodes[0])
+  articleTreeInstance = $.fn.zTree.init($("#cate-gory-tree-" + uniqueId), CateGorySetting, result);
+  allZtreeInstanceObj[uniqueId] = articleTreeInstance
+  var nodes = articleTreeInstance.getNodes();
+  articleTreeInstance.selectNode(nodes[0])
 }

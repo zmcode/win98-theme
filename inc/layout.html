@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="/static/themes/win98/static/css/lxgwwenkailite-regular.css">
   <!--  <link rel="stylesheet" href="/static/themes/win98/static/css/xgwwenkailite-bold.css">-->
   <link rel="stylesheet" href="/static/themes/win98/static/css/index.css">
+  <link rel="stylesheet" href="/static/themes/win98/static/css/viewer.min.css">
   <title>#(WEB_TITLE ?? '未设置')#(isBlank(SEO_TITLE) ? '': '-' + SEO_TITLE)</title>
   #@css?()
 </head>
@@ -57,7 +58,7 @@
 </div>
 <div id="articleMenu" class="menu">
   <ul>
-    <li class="m_add_article">新建文章</li>
+    <li class="m_add_article">新建文档</li>
     <li class="m_article_edit">编辑文章</li>
 <!--    <li class="m_article_detail">查看文章</li>-->
 <!--    <li class="m_article_config">属性</li>-->
@@ -65,8 +66,8 @@
 </div>
 <div id="addMenu" class="menu">
   <ul>
-    <li class="m_add_article">新建文章</li>
-<!--    <li class="m_article_edit">新建动态</li>-->
+    <li class="m_add_article">新建文档</li>
+    <li class="m_add_journal">新建动态</li>
 <!--    <li class="m_article_edit">更换壁纸</li>-->
   </ul>
 </div>
@@ -96,6 +97,7 @@
 </script>
 
 <script src="/static/themes/win98/static/js/highlight.min.js"></script>
+
 <script src="/static/themes/win98/static/js/request.js"></script>
 <script src="/static/themes/win98/static/js/marked.min.js"></script>
 <script src="/static/themes/win98/static/js/clippy.min.js"></script>
@@ -120,11 +122,21 @@
 <script src="/static/themes/win98/static/js/visualizer-overlay.js"></script>
 <script src="/static/themes/win98/static/js/my.js"></script>
 <script src="/static/themes/win98/static/js/programs.js"></script>
-
+<script src="/static/themes/win98/static/js/viewer.min.js"></script>
 <script>
   let init = true
   let closeWin = null
   var win98Theme = true
+  var isLogin = false
+  var controlDom = false
+  $.ajax({
+    url: '/user/getLoginUser',
+    success:function (res) {
+      if (res.data) {
+        isLogin = true
+      }
+    }
+  })
   function addIconFileSystem() {
 
     $('.desktop')[0].style = 'display: block'
@@ -142,7 +154,8 @@
           icons: iconsAtTwoSizes("my-computer"),
         });
         $win.$content.append(`<div style="padding: 20px">
-        欢迎访问我的电脑
+        欢迎访问我的电脑,
+        地址:
 </div>`)
         new Task($win);
       },
@@ -169,46 +182,101 @@
         $win.onClosed(() => {
           delete allZtreeInstanceObj[id]
         })
+
+        $('.document-wrap-right-content-wrap.document').on('contextmenu', function (event) {
+          const lastIndex = this.id.lastIndexOf('-')
+          const id = this.id.slice(lastIndex + 1)
+          controlZtreeId = id
+          hideAllMenu()
+          let x = event.clientX
+          let y = event.clientY
+          $('#addMenu').show()
+          $('#addMenu .m_add_article').show()
+          $('#addMenu .m_add_journal').hide()
+          $('#addMenu').css({"top":y+"px", "left":x+"px", "visibility":"visible"});
+          controlDom = $(this).parent('.document-wrap-right').find('.right-content-input-search')
+        })
       },
     });
 
 
     add_icon_not_via_filesystem({
-      title: "我的项目",
-      iconID: "web",
+      title: "我的动态",
+      iconID: "address_book",
       open: function () {
         const $win = new $Window({
-          title: '我的项目',
+          title: '我的动态',
           outerWidth: '60%',
           outerHeight: '70%',
           resizable: true,
-          icons: iconsAtTwoSizes("web"),
+          icons: iconsAtTwoSizes("address_book"),
         });
+        const id = new Date().getTime()
+
         new Task($win);
-
-
-        let arr = [
-          {
-            "name": "代码片段",
-            "site": "http://code.diaryhub.cn",
-            href: ''
-          }
-        ]
-        $.ajax({
-          url: '/admin/theme/themeList',
-          success: function (res) {
-            if (res.code == 200) {
-              arr = arr.concat(res.data)
-            }
-
-            const dom = addWebItem(arr)
-            $win.$content.append(dom)
-          },
-          error: function () {
-            const dom = addWebItem(arr)
-            $win.$content.append(dom)
-          }
+        const content = createJournalContent(id)
+        $win.$content.append(content)
+        reqAllCateGory(id)
+        renderJournalRight(id, '')
+        $win.onClosed(() => {
+          delete allZtreeInstanceObj[id]
         })
+
+        $('.document-wrap-right-content-wrap.journal-wrap').on('contextmenu', function (event) {
+          const lastIndex = this.id.lastIndexOf('-')
+          const id = this.id.slice(lastIndex + 1)
+          controlZtreeId = id
+          hideAllMenu()
+          let x = event.clientX
+          let y = event.clientY
+          $('#addMenu').show()
+          $('#addMenu .m_add_article').hide()
+          $('#addMenu .m_add_journal').show()
+          $('#addMenu').css({"top":y+"px", "left":x+"px", "visibility":"visible"});
+          console.log($(this).parent('.document-wrap-right'), '$(this).parent(\'.document-wrap-right\')')
+          controlDom = $(this).parent('.document-wrap-right').find('.right-content-input-search')
+        })
+
+      },
+    });
+
+
+    add_icon_not_via_filesystem({
+      title: "代码片段",
+      iconID: "msie",
+      open: function () {
+        window.open('http://code.diaryhub.cn')
+        // const $win = new $Window({
+        //   title: '我的项目',
+        //   outerWidth: '60%',
+        //   outerHeight: '70%',
+        //   resizable: true,
+        //   icons: iconsAtTwoSizes("web"),
+        // });
+        // new Task($win);
+        //
+        //
+        // let arr = [
+        //   {
+        //     "name": "代码片段",
+        //     "site": "http://code.diaryhub.cn",
+        //     href: ''
+        //   }
+        // ]
+        // request({
+        //   config: {
+        //     url: '/admin/theme/themeList',
+        //   }
+        // }).then(res => {
+        //   if (res.length) {
+        //     arr = arr.concat(res)
+        //     const dom = addWebItem(arr)
+        //     $win.$content.append(dom)
+        //   }
+        // }).catch(error => {
+        //   const dom = addWebItem(arr)
+        //   $win.$content.append(dom)
+        // })
 
       },
     });
@@ -263,6 +331,7 @@
               $(e).show()
             })
           }
+          isLogin = true
           localStorage.setItem('key', res.data.key)
         } else {
           showMessageBox({
@@ -297,7 +366,7 @@
         </div>
       <div class="button-wrap">
         <button onclick="handleLogin()">提交</button>
-        <button style="margin-top: 5px">取消</button>
+        <button style="margin-top: 5px" onclick="closeWin.close()">取消</button>
       </div>
     </div>`
     closeWin.$content.append(html);
@@ -310,14 +379,10 @@
       return
     }
     $.ajax({
-      url: '/option/getByKey',
-      type: 'get',
-      data: {
-        key: 'WEB_API_ACCESS_KEY'
-      },
+      url: '/api/isLock',
+      type: 'post',
       success: function (res) {
         const { data } = res
-
         if (data.lock) {
           createLockWin()
           $('.load-wrap')[0].style = 'display: none'
@@ -342,7 +407,7 @@
   }
 
   console.log('%c报错了? %c试试用chrome吧', 'color: red', 'color: black')
-  console.groupCollapsed('Hello, World'),console.log(` 2018-${new Date().getFullYear()}`),console.groupEnd()
+  console.groupCollapsed('Hello, World'),console.log(` 2018-${new Date().getFullYear()}, https://github.com/zmcode`),console.groupEnd()
 
 
 </script>
