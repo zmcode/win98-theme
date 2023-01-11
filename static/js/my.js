@@ -38,11 +38,15 @@ function deepChangeArr(uniqueId, data) {
 let activeCateGoryId = 0
 
 $('body').on('click', function () {
+
+
   hideAllMenu()
 })
 
 
 $('body').on('contextmenu', function (event) {
+
+
   event.preventDefault()
   // const viewMode = $(event.target).data().viewMode
   // if (!isLogin || viewMode !== 'LARGE_ICONS') return
@@ -383,7 +387,7 @@ function createDocumentContent(uniqueId) {
   listType = 'document'
   return `<div id="document-wrap-${uniqueId}" class="document-wrap">
   <div class="document-wrap-left">
-    <ul id="cate-gory-tree-${uniqueId}" class="ztree"></ul>
+    <ul id="cate-gory-tree-${uniqueId}" class="ztree document"></ul>
   </div>
     <div class="document-wrap-right">
       <div class="document-wrap-right-content-wrap document" id="document-wrap-right-content-${uniqueId}">
@@ -412,7 +416,7 @@ function createJournalContent(uniqueId) {
   listType = 'journal'
   return `<div id="document-wrap-${uniqueId}" class="document-wrap">
   <div class="document-wrap-left">
-    <ul id="cate-gory-tree-${uniqueId}" class="ztree"></ul>
+    <ul id="cate-gory-tree-${uniqueId}" class="ztree journal"></ul>
   </div>
     <div class="document-wrap-right document-wrap-right-journal">
       <div class="document-wrap-right-content-wrap journal-wrap" id="document-wrap-right-content-${uniqueId}">
@@ -478,9 +482,13 @@ var allZtreeInstanceObj = {}
 const CateGorySetting = {
   callback: {
     onClick: (e, cateGoryId, data) => {
+
+
       const lastIndex = cateGoryId.lastIndexOf('-')
       const id = cateGoryId.slice(lastIndex + 1)
-      if (listType === 'document') {
+      const journal = $('#cate-gory-tree-' + id).hasClass('journal')
+
+      if (!journal) {
         renderDocumentRight(id, data.id)
       }
        else {

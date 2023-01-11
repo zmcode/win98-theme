@@ -40,8 +40,6 @@ const request = ({ config, target, timeoutTime = 100, delayTime = 300 }) => {
                     })
                 }
             }
-
-
             reject(error)
         })
     });

@@ -9,7 +9,9 @@
   <meta name="keywords" content="#(SEO_KEYWORD ?? WEB_META_KEYWORD)">
   <meta name="description" content="#(SEO_DESC ?? WEB_META_DESC)">
   <meta NAME="robots" CONTENT="all">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <meta NAME="title" CONTENT="#(WEB_TITLE ?? '未设置')#(isBlank(SEO_TITLE) ? '': '-' + SEO_TITLE)">
+
   <link rel="stylesheet" href="/static/themes/win98/static/css/load.css">
   <link rel="Shortcut Icon" href="#option('WEB_LOGO','/static/themes/win98/static/img/computer.png')" type="image/png">
   <link rel="stylesheet" href="/static/themes/win98/static/css/zTreeStyle.css">
@@ -128,7 +130,7 @@
   let closeWin = null
   var win98Theme = true
   var isLogin = false
-  var controlDom = false
+
   $.ajax({
     url: '/user/getLoginUser',
     success:function (res) {
@@ -194,7 +196,7 @@
           $('#addMenu .m_add_article').show()
           $('#addMenu .m_add_journal').hide()
           $('#addMenu').css({"top":y+"px", "left":x+"px", "visibility":"visible"});
-          controlDom = $(this).parent('.document-wrap-right').find('.right-content-input-search')
+
         })
       },
     });
@@ -233,8 +235,7 @@
           $('#addMenu .m_add_article').hide()
           $('#addMenu .m_add_journal').show()
           $('#addMenu').css({"top":y+"px", "left":x+"px", "visibility":"visible"});
-          console.log($(this).parent('.document-wrap-right'), '$(this).parent(\'.document-wrap-right\')')
-          controlDom = $(this).parent('.document-wrap-right').find('.right-content-input-search')
+
         })
 
       },
