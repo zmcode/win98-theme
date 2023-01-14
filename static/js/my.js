@@ -64,7 +64,7 @@ var controlArticleId = 0
 $('.m_add_article').on('click', function () {
   if (!isLogin) {
     alert('需要登录才可以操作').then(res => {
-      createLockWin()
+      createLoginWin()
     })
   return
   }
@@ -86,7 +86,7 @@ $('.m_add_article').on('click', function () {
 $('.m_add_journal').on('click', function () {
   if (!isLogin) {
     alert('需要登录才可以操作').then(res => {
-      createLockWin()
+      createLoginWin()
     })
     return
   }
@@ -107,7 +107,7 @@ $('.m_add_journal').on('click', function () {
 $('.m_article_edit').on('click', function () {
   if (!isLogin) {
     alert('需要登录才可以操作').then(res => {
-      createLockWin()
+      createLoginWin()
     })
     return
   }

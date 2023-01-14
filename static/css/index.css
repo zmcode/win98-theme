@@ -238,3 +238,32 @@
     max-width: 100%;
     max-height: 100%;
 }
+
+.start-menu-content .content-wrap {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.start-menu-content .content-wrap img{
+    cursor: pointer;
+}
+
+.start-menu-content .content-wrap img:active {
+    transform: scale(0.9);
+}
+
+.start-menu-content .content-wrap .text {
+    font-family: "Arial";
+    /*font-size: 10px;*/
+    font-size: 10pt;
+    font-weight: bold;
+    color: #333;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}

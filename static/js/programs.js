@@ -805,6 +805,7 @@ function systemExecuteFile(file_path) {
     // });
 }
 var add_icon_not_via_filesystem = function (options) {
+
     folder_view.add_item(new FolderViewItem({
         icons: {
             // @TODO: know what sizes are available

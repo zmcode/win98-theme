@@ -12,6 +12,35 @@ const request = ({ config, target, timeoutTime = 100, delayTime = 300 }) => {
             headers: {
                 ...config.headers,
                 AccessKey: key ? key : ''
+            },
+            error: function (err) {
+                if (err.msg) {
+                    showMessageBox({
+                        title: "发生了错误",
+                        message: err.msg,
+                        iconID: "error",
+                    })
+                } else {
+                    if (!showBoxing) {
+                        const promise = showMessageBox({
+                            title: "权限失效",
+                            message: '你没有权限查看该内容, 请重新获取权限',
+                            iconID: "error",
+                        })
+                        showBoxing = true
+                        localStorage.removeItem('key')
+
+                        promise.then(res => {
+                            $('.desktop')[0].style = 'display: none'
+                            $('.taskbar')[0].style = 'opacity: 0'
+                            $('.os-window').each((i, e) => {
+                                $(e).hide()
+                            })
+                            showBoxing = false
+                            createLockWin()
+                        })
+                    }
+                }
             }
         })
 

@@ -55,10 +55,14 @@
 <div class="start-menu outset-deep" hidden style="display: none; z-index: 5001;">
   <div class="start-menu-titlebar"></div>
   <div class="start-menu-content">
-    <a href="/admin" target="_blank">设置</a>
+    <div class="content-wrap">
+      <img src="/static/themes/win98/static/img/avatar.png" onclick="createLoginWin()"/>
+      <b class="text">致敬win98</b>
+    </div>
+
   </div>
 </div>
-<div id="articleMenu" class="menu">
+<div id="articleMenu" class="menu" style="display: none">
   <ul>
     <li class="m_add_article">新建文档</li>
     <li class="m_article_edit">编辑文章</li>
@@ -66,7 +70,7 @@
 <!--    <li class="m_article_config">属性</li>-->
   </ul>
 </div>
-<div id="addMenu" class="menu">
+<div id="addMenu" class="menu" style="display: none">
   <ul>
     <li class="m_add_article">新建文档</li>
     <li class="m_add_journal">新建动态</li>
@@ -113,7 +117,7 @@
 <script src="/static/themes/win98/static/js/msgbox.js"></script>
 <script src="/static/themes/win98/static/js/helpers.js"></script>
 <script src="/static/themes/win98/static/js/filesystem-setup.js"></script>
-
+<script src="/static/themes/win98/static/js/iframe-windows.js"></script>
 <script src="/static/themes/win98/static/js/Task.js"></script>
 <script src="/static/themes/win98/static/js/$taskbar-time.js"></script>
 <script src="/static/themes/win98/static/js/$start-menu.js"></script>
@@ -131,18 +135,11 @@
   var win98Theme = true
   var isLogin = false
 
-  $.ajax({
-    url: '/user/getLoginUser',
-    success:function (res) {
-      if (res.data) {
-        isLogin = true
-      }
-    }
-  })
+
   function addIconFileSystem() {
 
-    $('.desktop')[0].style = 'display: block'
-    $('.taskbar')[0].style = 'opacity: 1'
+    // $('.desktop')[0].style = 'display: block'
+    // $('.taskbar')[0].style = 'opacity: 1'
     init = false
     add_icon_not_via_filesystem({
       title: "我的电脑",
@@ -155,9 +152,13 @@
           resizable: true,
           icons: iconsAtTwoSizes("my-computer"),
         });
-        $win.$content.append(`<div style="padding: 20px">
-        欢迎访问我的电脑,
-        地址:
+        $win.$content.append(`<div style="padding: 20px;margin-top: 80px;text-align: center">
+        <img src="/static/themes/win98/static/img/icons/avatar-32x32.png"/>
+        <div style="margin-top: 10px">
+        用win98风格展示博客
+</div>
+        <a href="https://github.com/zmcode/win98-theme" target="_blank">https://github.com/zmcode/win98-theme</a>
+
 </div>`)
         new Task($win);
       },
@@ -186,6 +187,7 @@
         })
 
         $('.document-wrap-right-content-wrap.document').on('contextmenu', function (event) {
+          if (!isLogin) return
           const lastIndex = this.id.lastIndexOf('-')
           const id = this.id.slice(lastIndex + 1)
           controlZtreeId = id
@@ -225,6 +227,7 @@
         })
 
         $('.document-wrap-right-content-wrap.journal-wrap').on('contextmenu', function (event) {
+          if (!isLogin) return
           const lastIndex = this.id.lastIndexOf('-')
           const id = this.id.slice(lastIndex + 1)
           controlZtreeId = id
@@ -246,43 +249,120 @@
       title: "代码片段",
       iconID: "msie",
       open: function () {
-        window.open('http://code.diaryhub.cn')
-        // const $win = new $Window({
-        //   title: '我的项目',
-        //   outerWidth: '60%',
-        //   outerHeight: '70%',
-        //   resizable: true,
-        //   icons: iconsAtTwoSizes("web"),
-        // });
-        // new Task($win);
-        //
-        //
-        // let arr = [
-        //   {
-        //     "name": "代码片段",
-        //     "site": "http://code.diaryhub.cn",
-        //     href: ''
-        //   }
-        // ]
-        // request({
-        //   config: {
-        //     url: '/admin/theme/themeList',
-        //   }
-        // }).then(res => {
-        //   if (res.length) {
-        //     arr = arr.concat(res)
-        //     const dom = addWebItem(arr)
-        //     $win.$content.append(dom)
-        //   }
-        // }).catch(error => {
-        //   const dom = addWebItem(arr)
-        //   $win.$content.append(dom)
-        // })
+        window.open('https://code.diaryhub.cn')
+      },
+    });
+
+
+
+    add_icon_not_via_filesystem({
+      title: "pinball",
+      iconID: "pinball",
+      open: function () {
+
+        var $win = make_iframe_window({
+          src: "https://98.js.org/programs/pinball/space-cadet.html",
+          icons: iconsAtTwoSizes("pinball"),
+          title: "3D Pinball for Windows - Space Cadet",
+          innerWidth: 600,
+          innerHeight: 416 + 20, // @TODO: where's this 20 coming from?
+          minInnerWidth: 600,
+          minInnerHeight: 416 + 20,
+          // resizable: false, // @TODO (maybe) once gray maximized button is implemented
+          override_alert: false, // to handle the alert as a fatal error, and to compensate for overzealous preventDefault()
+        });
+        const $splash = $("<div>").css({
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          background: "url(/static/themes/win98/static/img/pinball-splash.png) no-repeat center center",
+          backgroundColor: "black",
+          zIndex: $Window.Z_INDEX + 6000,
+        }).appendTo("body");
+        setTimeout(() => {
+          $splash.remove(); // just in case
+        }, 5000);
+        $win.$content.find("iframe").on("game-loaded", () => { // custom event dispatched from within the iframe
+          $splash.remove();
+        });
+        $win.$content.find("iframe").on("game-load-failed", () => { // custom event dispatched from within the iframe
+          $splash.remove();
+          // on some systems, if the game fails to load,
+          // it may result in the canvas showing through to the desktop behind the browser window
+          // let's call it a feature, tie it in thematically,
+          // and pretend like we did it on purpose, to baffle and amuse.
+          // This happens for me on Chrome on Ubuntu with Xfce, when coming out of suspend.
+          // It says "Could not create renderer / Couldn't find matching render driver"
+          // It keeps happening with live reload, but stops on a regular reload, or duplicating the tab.
+          $win.title("Wormhole Window - Space Cadet");
+        });
 
       },
     });
 
     $('.load-wrap')[0].style = 'display: none'
+    $('.desktop')[0].style = 'display: block'
+    $('.taskbar')[0].style = 'opacity: 1'
+    $.ajax({
+      url: '/user/getLoginUser',
+      success:function (res) {
+        if (res.data) {
+          isLogin = true
+          addUseView()
+
+        }
+
+      }
+    })
+
+
+  }
+
+
+  function addUseView() {
+
+    add_icon_not_via_filesystem({
+      title: "我的项目",
+      iconID: "web",
+      open:function () {
+        const $win = new $Window({
+          title: '我的项目',
+          outerWidth: '60%',
+          outerHeight: '70%',
+          resizable: true,
+          icons: iconsAtTwoSizes("web"),
+        });
+        new Task($win);
+
+
+        let arr = [
+        ]
+        request({
+          config: {
+            url: '/admin/theme/themeList',
+          }
+        }).then(res => {
+          if (res.length) {
+            arr = arr.concat(res)
+            const dom = addWebItem(arr)
+            $win.$content.append(dom)
+          }
+        }).catch(error => {
+          const dom = addWebItem(arr)
+          $win.$content.append(dom)
+        })
+      }
+    })
+    add_icon_not_via_filesystem({
+      title: "设置",
+      iconID: "setting",
+      open: function () {
+        window.open('/admin')
+      },
+    });
+    folder_view.arrange_icons()
   }
   function addWebItem(arr) {
     const rightContent_view = new FolderView('', {
@@ -321,19 +401,19 @@
         password
       },
       success:function (res) {
+
         if (res.code === 200) {
           closeWin.close()
           if (init) {
             addIconFileSystem()
           } else {
-            $('.desktop')[0].style = 'display: block'
-            $('.taskbar')[0].style = 'opacity: 1'
             $('.os-window').each((i, e) => {
               $(e).show()
             })
           }
           isLogin = true
           localStorage.setItem('key', res.data.key)
+          addUseView()
         } else {
           showMessageBox({
             title: "登录失败",
@@ -358,7 +438,53 @@
       });
         const html = `<div class="key-wrap">
             <img src="/static/themes/win98/static/img/keys.png" alt="">
-            <p>访问电脑需要验证身份, 请输入你的账号以及密码获取权限</p>
+            <p>访问电脑需要验证身份, 请输入密码</p>
+            <div class="input-wrap">
+            <label>用户: </label> visitor
+        </div>
+        <div class="input-wrap">
+          <label>密码: </label> <input id="verifyInput" type="password">
+        </div>
+      <div class="button-wrap">
+        <button onclick="verifyPassword()">提交</button>
+        <button style="margin-top: 5px" onclick="alert('o(╥﹏╥)o, 随便输入是没有用的')">取消</button>
+      </div>
+    </div>`
+    closeWin.$content.append(html);
+  }
+
+  function verifyPassword() {
+    const verifyInput = $('#verifyInput').val()
+    localStorage.setItem('key', verifyInput)
+    closeWin.close()
+    if (init) {
+      addIconFileSystem()
+    } else {
+      $('.desktop')[0].style = 'display: block'
+      $('.taskbar')[0].style = 'opacity: 1'
+      $('.os-window').each((i, e) => {
+        $(e).show()
+      })
+    }
+  }
+
+
+  function createLoginWin() {
+    if (isLogin) {
+      return
+    }
+    closeWin = new $Window({
+      title: '登录账号',
+      resizable: false,
+      innerWidth: 500,
+      outerHeight: 170,
+      maximizeButton: false,
+      minimizeButton: false,
+      closeButton: false
+    });
+    const html = `<div class="key-wrap">
+            <img src="/static/themes/win98/static/img/icons/accout-32x32.png" alt="">
+            <p>登录你的账号, 获取更多权限</p>
             <div class="input-wrap">
             <label>用户名: </label> <input id="accountInput" type="text">
         </div>
@@ -374,8 +500,8 @@
   }
 
   function crateDeskTop() {
-    const hasKey = localStorage.getItem('key')
-    if (hasKey) {
+    const key = localStorage.getItem('key')
+    if (key) {
       addIconFileSystem()
       return
     }
@@ -389,6 +515,7 @@
           $('.load-wrap')[0].style = 'display: none'
         } else  {
           addIconFileSystem()
+
         }
       },
         // 如果没有这个接口, 直接返回成功吧
