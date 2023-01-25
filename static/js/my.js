@@ -156,12 +156,13 @@ renderer.heading = (text, level) => {
   }
 
   headlineArr.push({
-    uniqueId,
+    id: uniqueId,
     pid: activePid,
     level,
     url: '#' + uniqueId,
     name: text,
     target: '_self',
+    uniqueId
   })
   prevPid = uniqueId
   prevLevel = level
@@ -286,6 +287,7 @@ function renderDocumentRight(uniqueId, cateGoryId, page = 1, content ='') {
             $(`#article-headline-wrap-${articleContentId}`).hide()
             $(`#article-content-${articleContentId}`).css('width', '100%')
           }
+          console.log(headlineArr, 'headlineArr')
           $.fn.zTree.init($('#article-headline-' + articleContentId), headlineSetting, headlineArr);
           new Task($win);
           $(document).ready(() => {

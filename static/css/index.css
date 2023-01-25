@@ -1,6 +1,6 @@
-/*.window-content {*/
-/*    background: #fff;*/
-/*}*/
+.document-wrap, .article-content-wrap {
+    background: #fff;
+}
 
 
 
@@ -87,7 +87,8 @@
     float: left;
     overflow: auto;
     position: relative;
-    border-right: 1px solid #999;
+    border-right: 1px solid rgba(60,60,60,.2);
+    padding: 0 5px;
 }
 .document-wrap-right, .article-content {
     float: left;

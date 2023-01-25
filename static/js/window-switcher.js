@@ -184,6 +184,7 @@
                     });
                 });
                 notice_shown = true;
+
             }
         }
     }
